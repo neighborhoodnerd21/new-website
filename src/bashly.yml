@@ -1,0 +1,20 @@
+name: new-website
+help: bash program for creating new static website projects
+version: 0.1.0
+
+args:
+  - name: name
+    required: true
+    help: name of new project
+
+flags:
+  - long: --bootstrap
+    short: -b
+    help: use bootstrap for static site
+  - long: --full
+    short: -f
+    help: create full three page static site template
+
+examples:
+  - new-website my-new-project
+  - new-website -f my-new-project

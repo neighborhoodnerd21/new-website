@@ -1,5 +1,5 @@
 function html_vanilla() {
-  cat >>index.html <<'EOF'
+  cat <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,14 +12,14 @@ function html_vanilla() {
 
     <!-- Your content goes here -->
 
-    <script src="script.js"></script>
+    <script src="assets/js/script.js"></script>
 </body>
 </html>
 EOF
 }
 
 function html_bootstrap() {
-  cat >>index.html <<'EOF'
+  cat <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,7 +73,7 @@ EOF
 }
 
 function js_starter() {
-  cat >>script.js <<'EOF'
+  cat <<'EOF'
 // Basic JavaScript Starter Code
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Hello, World!');
@@ -105,4 +105,34 @@ function prettier_config() {
   "bracketSameLine": true
 }
 EOF
+}
+
+function common_files() {
+  html_starter >>index.html
+  html_404
+  readme_starter
+  gitignore_starter
+  prettier_config
+}
+
+function extended_files() {
+  (cd assets/html &&
+    html_vanilla >>about.html &&
+    html_vanilla >>contact.html &&
+    html_vanilla >>gallery.html &&
+    exit 0) || exit 1
+}
+
+function basic_project() {
+  (cd assets/css &&
+    css_starter &&
+    exit 0) || exit 1
+  (cd assets/js &&
+    js_starter >>script.js &&
+    exit 0) || exit 1
+  common_files
+}
+
+function full_project() {
+  basic_project
 }
