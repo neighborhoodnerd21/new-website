@@ -1,6 +1,9 @@
 ## set global variables
 
-delcare PROJECTS="$HOME/Projects"
+declare PROJECTS="$HOME/Projects"
+declare -a project_dirs=()
+declare PROJECT_NAME="${args[name]}"
+declare PROJECT_PATH="${PROJECTS}/${PROJECT_NAME}"
 
 declare -a basic_dirs=(
   "assets"
@@ -20,12 +23,6 @@ declare -a full_dirs=(
   "assets/icons"
   "assets/fonts"
 )
-
-declare -a project_dirs=()
-
-declare PROJECT_NAME="${args[name]}"
-
-declare PROJECT_PATH="${PROJECTS}/${PROJECT_NAME}"
 
 # functions for boilerplate
 
@@ -161,7 +158,7 @@ function make_html() {
 }
 
 function common_files() {
-  html_starter >>index.html
+  make_html >>index.html
   html_404
   readme_starter
   gitignore_starter
@@ -169,25 +166,33 @@ function common_files() {
 }
 
 function extended_files() {
-  local about="${PROJECT_PATH}/${full_dirs[3]}/about.html"
-  local contact="${PROJECT_PATH}/${full_dirs[3]}/contact.html"
-  local gallery="${PROJECT_PATH}/${full_dirs[3]}/gallery.html"
-  make_html >>"${about}"
-  make_html >>"${contact}"
-  make_html >>"${gallery}"
+  declare -a files=(about.html contact.html gallery.html)
+  for file in "${files[@]}"; do
+    local path
+    path=$(realpath -m "${PROJECT_PATH}/${full_dirs[3]}/$file")
+    make_html >>"${path}"
+  done
 }
 
-function basic_project() {
+function basic_sitefiles() {
   common_files
 }
 
-function full_project() {
+function full_sitefiles() {
   common_files
-  basic_project
+  basic_sitefiles
   extended_files
 }
 
 # main
+
+# check if projects directory exists, create if not
+if [ ! -d "${PROJECTS}" ]; then
+  mkdir "${PROJECTS}" || {
+    echo "Error: Failed to create projects directory '${PROJECTS}'." >&2
+    exit 1
+  }
+fi
 
 # check if project directory already exists
 if [ -d "${PROJECT_PATH}" ]; then
@@ -203,6 +208,15 @@ else
 fi
 
 # create project directory and subdirectories
-mkdir -p "${PROJECT_PATH}"
-cd "${PROJECT_PATH}" || exit 1
-make_dirs || exit 1
+mkdir -p "${PROJECT_PATH}" || {
+  echo "Error: Failed to create directory '${PROJECT_PATH}'." >&2
+  exit 1
+}
+cd "${PROJECT_PATH}" || {
+  echo "Error: Failed to change directory to '${PROJECT_PATH}'." >&2
+  exit 1
+}
+make_dirs || {
+  echo "Error: Failed to create subdirectories." >&2
+  exit 1
+}
