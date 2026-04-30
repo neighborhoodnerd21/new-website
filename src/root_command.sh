@@ -142,8 +142,8 @@ EOF
 
 function make_dirs {
   for dir in "${project_dirs[@]}"; do
-    mkdir -p "$PROJECT_ROOT/$dir" || {
-      echo "Error: Failed to create directory '$PROJECT_ROOT/$dir'." >&2
+    mkdir -p "${PROJECT_PATH}/${dir}" || {
+      echo "Error: Failed to create directory '${PROJECT_PATH}/${dir}'." >&2
       exit 1
     }
   done
@@ -169,7 +169,7 @@ function extended_sitefiles() {
   declare -a files=(about.html contact.html gallery.html)
   for file in "${files[@]}"; do
     local path
-    path=$(realpath -m "${PROJECT_PATH}/${full_dirs[3]}/$file")
+    path="${PROJECT_PATH}/${full_dirs[3]}/$file"
     make_html >>"${path}"
   done
 }
@@ -201,13 +201,6 @@ if [ -d "${PROJECT_PATH}" ]; then
   exit 1
 fi
 
-# set project subdirectories based on --full flag
-if [ "${args[--full]}" ]; then
-  project_dirs=("${full_dirs[@]}")
-else
-  project_dirs=("${basic_dirs[@]}")
-fi
-
 # create project directory and subdirectories
 mkdir -p "${PROJECT_PATH}" || {
   echo "Error: Failed to create directory '${PROJECT_PATH}'." >&2
@@ -217,7 +210,26 @@ cd "${PROJECT_PATH}" || {
   echo "Error: Failed to change directory to '${PROJECT_PATH}'." >&2
   exit 1
 }
-make_dirs || {
-  echo "Error: Failed to create subdirectories." >&2
-  exit 1
-}
+
+# set project subdirectories and choose files based on --full flag
+if [ "${args[--full]}" ]; then
+  project_dirs=("${full_dirs[@]}")
+  make_dirs || {
+    echo "Error: Failed to create subdirectories." >&2
+    exit 1
+  }
+  full_sitefiles || {
+    echo "Error: Failed to create site files." >&2
+    exit 1
+  }
+else
+  project_dirs=("${basic_dirs[@]}")
+  make_dirs || {
+    echo "Error: Failed to create subdirectories." >&2
+    exit 1
+  }
+  basic_sitefiles || {
+    echo "Error: Failed to create site files." >&2
+    exit 1
+  }
+fi
