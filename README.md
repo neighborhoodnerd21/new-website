@@ -7,6 +7,7 @@ NAME
                 with boilerplate.
 
 SYNOPSIS
+
   new-website [-f, -b] <project-name>
 
 DESCRIPTION
@@ -19,10 +20,10 @@ DESCRIPTION
   Without any options, it creates a basic website project with a 
   single index.html file.
 
-  -f    Create a "full" website project
-        with additional pages and assets.
+  -f, --full          Create a "full" website project
+                      with additional pages and assets.
         
-  -b    Create a bootstrap project
+  -b, --bootstrap     Create a bootstrap project
 
   new-website my-website
   new-website -f my-full-website
