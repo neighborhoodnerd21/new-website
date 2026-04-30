@@ -1,4 +1,5 @@
 # new-website
+
 ```txt
 NAME
 
@@ -6,7 +7,7 @@ NAME
                 with boilerplate.
 
 SYNOPSIS
-  new-website [-f | -b] <project-name>
+  new-website [-f, -b] <project-name>
 
 DESCRIPTION
 
