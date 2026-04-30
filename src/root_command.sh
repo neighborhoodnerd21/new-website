@@ -34,7 +34,7 @@ function html_vanilla() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
 
@@ -58,7 +58,7 @@ function html_bootstrap() {
       rel="stylesheet"
       integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
       crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
 
@@ -74,7 +74,7 @@ EOF
 }
 
 function html_404() {
-  cat >>404.html <<'EOF'
+  cat <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +95,7 @@ EOF
 }
 
 function css_starter() {
-  cat >>style.css <<'EOF'
+  cat <<'EOF'
 /* Basic CSS Reset */
 * {
     margin: 0;
@@ -115,7 +115,7 @@ EOF
 }
 
 function readme_starter() {
-  cat >>README.md <<'EOF'
+  cat <<'EOF'
 # Project Title
 # A brief description of your project.
 
@@ -123,7 +123,7 @@ EOF
 }
 
 function gitignore_starter() {
-  cat >>.gitignore <<'EOF'
+  cat <<'EOF'
 .DS_Store
 EOF
 }
@@ -157,15 +157,15 @@ function make_html() {
   fi
 }
 
-function common_files() {
-  make_html >>index.html
-  html_404
-  readme_starter
-  gitignore_starter
-  prettier_config
+function common_sitefiles() {
+  make_html >>"${PROJECT_PATH}/index.html"
+  html_404 >>"${PROJECT_PATH}/404.html"
+  readme_starter >>"${PROJECT_PATH}/README.md"
+  gitignore_starter >>"${PROJECT_PATH}/.gitignore"
+  prettier_config >>"${PROJECT_PATH}/.prettierrc"
 }
 
-function extended_files() {
+function extended_sitefiles() {
   declare -a files=(about.html contact.html gallery.html)
   for file in "${files[@]}"; do
     local path
@@ -175,13 +175,14 @@ function extended_files() {
 }
 
 function basic_sitefiles() {
-  common_files
+  common_sitefiles
+  css_starter >>"${PROJECT_PATH}/assets/css/style.css"
+  js_starter >>"${PROJECT_PATH}/assets/js/script.js"
 }
 
 function full_sitefiles() {
-  common_files
   basic_sitefiles
-  extended_files
+  extended_sitefiles
 }
 
 # main
