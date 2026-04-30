@@ -1,11 +1,11 @@
 ## set global variables
 
-declare PROJECTS="$HOME/Projects"
-declare -a project_dirs=()
-declare PROJECT_NAME="${args[name]}"
-declare PROJECT_PATH="${PROJECTS}/${PROJECT_NAME}"
+declare -g PROJECTS="$HOME/Projects"
+declare -g -a project_dirs=()
+declare -g PROJECT_NAME=""
+declare -g -a projects=()
 
-declare -a basic_dirs=(
+declare -g -a basic_dirs=(
   "assets"
   "assets/css"
   "assets/js"
@@ -14,7 +14,7 @@ declare -a basic_dirs=(
   "assets/fonts"
 )
 
-declare -a full_dirs=(
+declare -g -a full_dirs=(
   "assets"
   "assets/css"
   "assets/js"
@@ -186,8 +186,51 @@ function full_sitefiles() {
 }
 
 # main
+function main() {
+  local PROJECT_PATH="${PROJECTS}/${PROJECT_NAME}"
+  echo "Creating project '${PROJECT_NAME}' at '${PROJECT_PATH}'..."
+  # check if projects directory exists, create if not
 
-# check if projects directory exists, create if not
+  # check if project directory already exists
+  if [ -d "${PROJECT_PATH}" ]; then
+    echo "Directory '${PROJECT_PATH}' already exists. Exiting."
+    exit 1
+  fi
+
+  # create project directory and subdirectories
+  mkdir -p "${PROJECT_PATH}" || {
+    echo "Error: Failed to create directory '${PROJECT_PATH}'." >&2
+    exit 1
+  }
+  cd "${PROJECT_PATH}" || {
+    echo "Error: Failed to change directory to '${PROJECT_PATH}'." >&2
+    exit 1
+  }
+
+  # set project subdirectories and choose files based on --full flag
+  if [ "${args[--full]}" ]; then
+    project_dirs=("${full_dirs[@]}")
+    make_dirs || {
+      echo "Error: Failed to create subdirectories." >&2
+      exit 1
+    }
+    full_sitefiles || {
+      echo "Error: Failed to create site files." >&2
+      exit 1
+    }
+  else
+    project_dirs=("${basic_dirs[@]}")
+    make_dirs || {
+      echo "Error: Failed to create subdirectories." >&2
+      exit 1
+    }
+    basic_sitefiles || {
+      echo "Error: Failed to create site files." >&2
+      exit 1
+    }
+  fi
+}
+
 if [ ! -d "${PROJECTS}" ]; then
   mkdir "${PROJECTS}" || {
     echo "Error: Failed to create projects directory '${PROJECTS}'." >&2
@@ -195,41 +238,37 @@ if [ ! -d "${PROJECTS}" ]; then
   }
 fi
 
-# check if project directory already exists
-if [ -d "${PROJECT_PATH}" ]; then
-  echo "Directory '${PROJECT_PATH}' already exists. Exiting."
-  exit 1
-fi
-
-# create project directory and subdirectories
-mkdir -p "${PROJECT_PATH}" || {
-  echo "Error: Failed to create directory '${PROJECT_PATH}'." >&2
-  exit 1
-}
-cd "${PROJECT_PATH}" || {
-  echo "Error: Failed to change directory to '${PROJECT_PATH}'." >&2
-  exit 1
-}
-
-# set project subdirectories and choose files based on --full flag
-if [ "${args[--full]}" ]; then
-  project_dirs=("${full_dirs[@]}")
-  make_dirs || {
-    echo "Error: Failed to create subdirectories." >&2
-    exit 1
-  }
-  full_sitefiles || {
-    echo "Error: Failed to create site files." >&2
-    exit 1
-  }
+if [ -p /dev/stdin ]; then
+  readarray -t projects
+  for p in "${projects[@]}"; do
+    if [[ -z "$p" ]]; then
+      echo "Error: project names cannot be empty." >&2
+      exit 1
+    elif [[ "$p" == *"/"* ]]; then
+      echo "Error: '$p' contains a forward slash (/)." >&2
+      exit 1
+    else
+      PROJECT_NAME="$p"
+      main
+    fi
+  done
+elif [[ -n "${args[name]}" ]]; then
+  projects=("${args[name]}")
+  for p in "${projects[@]}"; do
+    if [[ -z "$p" ]]; then
+      echo "Error: project names cannot be empty." >&2
+      exit 1
+    elif [[ "$p" == *"/"* ]]; then
+      echo "Error: '$p' contains a forward slash (/)." >&2
+      exit 1
+    else
+      PROJECT_NAME="$p"
+      main
+    fi
+  done
 else
-  project_dirs=("${basic_dirs[@]}")
-  make_dirs || {
-    echo "Error: Failed to create subdirectories." >&2
-    exit 1
-  }
-  basic_sitefiles || {
-    echo "Error: Failed to create site files." >&2
-    exit 1
-  }
+  echo "Error: No valid input provided. Please provide a project name."
+  exit 1
 fi
+
+exit 0

@@ -4,7 +4,7 @@ version: 0.1.0
 
 args:
   - name: name
-    required: true
+    required: false
     help: name of new project
 
 flags:
