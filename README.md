@@ -29,6 +29,11 @@ DESCRIPTION
   new-website -f my-full-website
   new-website -b my-bootstrap-website
 
+  To create multiple projects at once, you can provide a comma-separated 
+  list of project names:
+  
+  new-website foo,bar,baz
+
 AUTHOR
 
   NeighborhoodNerd21

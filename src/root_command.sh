@@ -253,7 +253,7 @@ if [ -p /dev/stdin ]; then
     fi
   done
 elif [[ -n "${args[name]}" ]]; then
-  projects=("${args[name]}")
+  IFS=',' read -ra projects <<<"${args[name]}"
   for p in "${projects[@]}"; do
     if [[ -z "$p" ]]; then
       echo "Error: project names cannot be empty." >&2
