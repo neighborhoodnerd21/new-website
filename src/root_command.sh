@@ -232,6 +232,7 @@ function main() {
 }
 
 if [ ! -d "${PROJECTS}" ]; then
+  echo "Projects directory not found. Creating now..."
   mkdir "${PROJECTS}" || {
     echo "Error: Failed to create projects directory '${PROJECTS}'." >&2
     exit 1
@@ -240,35 +241,24 @@ fi
 
 if [ -p /dev/stdin ]; then
   readarray -t projects
-  for p in "${projects[@]}"; do
-    if [[ -z "$p" ]]; then
-      echo "Error: project names cannot be empty." >&2
-      exit 1
-    elif [[ "$p" == *"/"* ]]; then
-      echo "Error: '$p' contains a forward slash (/)." >&2
-      exit 1
-    else
-      PROJECT_NAME="$p"
-      main
-    fi
-  done
 elif [[ -n "${args[name]}" ]]; then
   IFS=',' read -ra projects <<<"${args[name]}"
-  for p in "${projects[@]}"; do
-    if [[ -z "$p" ]]; then
-      echo "Error: project names cannot be empty." >&2
-      exit 1
-    elif [[ "$p" == *"/"* ]]; then
-      echo "Error: '$p' contains a forward slash (/)." >&2
-      exit 1
-    else
-      PROJECT_NAME="$p"
-      main
-    fi
-  done
 else
   echo "Error: No valid input provided. Please provide a project name."
   exit 1
 fi
+
+for p in "${projects[@]}"; do
+  if [[ -z "$p" ]]; then
+    echo "Error: project names cannot be empty." >&2
+    exit 1
+  elif [[ "$p" == *"/"* ]]; then
+    echo "Error: '$p' contains a forward slash (/)." >&2
+    exit 1
+  else
+    PROJECT_NAME="$p"
+    main
+  fi
+done
 
 exit 0
